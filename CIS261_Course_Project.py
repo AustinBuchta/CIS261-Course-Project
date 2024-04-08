@@ -9,7 +9,7 @@ def get_hourly_rate():
     return float(input("Enter hourly rate: "))
 
 def get_income_tax_rate():
-    return float(input("Enter income tax rate (in percentage): "))
+    return float(input("Enter income tax rate (in percentage): ")) 
 
 def calculate_pay(total_hours, hourly_rate, tax_rate):
     gross_pay = total_hours * hourly_rate
