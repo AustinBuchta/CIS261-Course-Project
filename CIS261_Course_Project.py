@@ -1,4 +1,3 @@
-
 def get_employee_name():
     return input("Enter employee name: ")
 
@@ -35,31 +34,33 @@ def display_totals(total_employees, total_hours, total_gross_pay, total_tax, tot
 
 def main():
     total_employees = 0
-    total_hours = 0
+    total_all_hours = 0
     total_gross_pay = 0
     total_tax = 0
     total_net_pay = 0
 
     while True:
+        print()
         name = get_employee_name()
         if name.lower() == "end":
             break
 
-        total_hours = get_total_hours()
+        employee_hours = get_total_hours()
         hourly_rate = get_hourly_rate()
         tax_rate = get_income_tax_rate()
 
-        gross_pay, income_tax, net_pay = calculate_pay(total_hours, hourly_rate, tax_rate)
+        gross_pay, income_tax, net_pay = calculate_pay(employee_hours, hourly_rate, tax_rate)
 
-        display_employee_details(name, total_hours, hourly_rate, gross_pay, tax_rate, income_tax, net_pay)
+        display_employee_details(name, employee_hours, hourly_rate, gross_pay, tax_rate, income_tax, net_pay)
 
         total_employees += 1
-        total_hours += total_hours
+        total_all_hours += employee_hours
         total_gross_pay += gross_pay
         total_tax += income_tax
         total_net_pay += net_pay
 
-    display_totals(total_employees, total_hours, total_gross_pay, total_tax, total_net_pay)
+    display_totals(total_employees, total_all_hours, total_gross_pay, total_tax, total_net_pay)
+    print()
 
 if __name__ == "__main__":
     main()
