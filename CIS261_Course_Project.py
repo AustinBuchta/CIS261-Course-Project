@@ -89,63 +89,47 @@ def display_totals(total_employees, total_hours, total_gross_pay, total_tax, tot
     print("Total Net Pay:", total_net_pay)
 
 def get_date():
-    # Is there a better way?!?
     while True:
         try:
             get_from_date = input("Enter from date (mm/dd/yyyy): ")
-            if '/' not in get_from_date:
-            # Check if the length of the input is exactly 8 digits (no '/'), then add '/' accordingly
+            if get_from_date.lower() == "all":
+                from_date = get_from_date
+                to_date = get_from_date  # Assign the same value to 'to_date'
+                return from_date, to_date  # Return both from_date and to_date
+            if get_from_date:
                 get_from = re.sub(r'\D', '', get_from_date)    
                 if len(get_from) == 8:
                     from_date = get_from[:2] + '/' + get_from[2:4] + '/' + get_from[4:]
                     break
-                if len(get_from) <= 7:
+                if len(get_from) == 6:
+                    from_date = get_from[:2] + '/' + get_from[2:4] + '/20' + get_from[4:]
+                    break
+                if len(get_from) == 7 or len(get_from) <= 5:
                     print("Invalid date format. Please enter the date in mm/dd/yyyy format.")
                     continue
                 else: 
-                    print("Unexpected Error, Please enter the date in mm/dd/yyyy format.")
-                    continue
-            # Check if the input contains only digits and '/' then rebuild '/'
-            elif '/' in get_from_date:
-                get_from = re.sub(r'\D', '', get_from_date)
-                if len(get_from) == 8:
-                    from_date = get_from[:2] + '/' + get_from[2:4] + '/' + get_from[4:]
-                    break
-                else:
-                    print("Invalid date format. Please enter the date in mm/dd/yyyy format.")
-                    continue
-            else:
-                print("Invalid characters. Please enter digits and '/' only.")
-                continue
+                    raise ValueError
         except ValueError:
             print("Unexpected error. Please enter the date in mm/dd/yyyy format.")
             continue
     while True:
         try:
             get_to_date = input("Enter to date (mm/dd/yyyy): ")
-            if '/' not in get_to_date:
-            # Check if the length of the input is exactly 8 digits (no '/'), then add '/' accordingly
+            if get_to_date:
                 get_to = re.sub(r'\D', '', get_to_date)    
                 if len(get_to) == 8:
                     to_date = get_to[:2] + '/' + get_to[2:4] + '/' + get_to[4:]
                     break
-                else:
-                    print("Invalid date format. Please enter the date in mm/dd/yyyy format.")
-                    continue
-            # Check if the input contains only digits and '/' then rebuild '/'
-            elif '/' in get_to_date:
-                get_to = re.sub(r'\D', '', get_to_date)
-                if len(get_to) == 8:
-                    to_date = get_to[:2] + '/' + get_to[2:4] + '/' + get_to[4:]
+                if len(get_to) == 6:
+                    to_date = get_to[:2] + '/' + get_to[2:4] + '/20' + get_to[4:]
                     break
-                else:
+                if len(get_to) == 7 or len(get_to) <= 5:
                     print("Invalid date format. Please enter the date in mm/dd/yyyy format.")
                     continue
-            else:
-                print("Invalid characters. Please enter digits and '/' only.")
-                continue
+                else: 
+                    raise ValueError
         except ValueError:
-            print("Invalid date format. Please enter the date in mm/dd/yyyy format.")
+            print("Unexpected error. Please enter the date in mm/dd/yyyy format.")
             continue
     return from_date, to_date
 
@@ -154,6 +138,8 @@ def enter_employee_data():
     if name.lower() == "end":
         return None
     from_date, to_date = get_date()
+    if from_date == "all":
+        return
     employee_hours = get_total_hours()
     hourly_rate = get_hourly_rate()
     tax_rate = get_income_tax_rate()
@@ -192,7 +178,27 @@ def display_totals_from_dict(employee_data):
     print("Total Tax:", total_tax)
     print("Total Net Pay:", total_net_pay)
 
-def main():
+def open_file():
+    try:
+        file = open("Hour.txt", "a")  # Open the file in "append" mode
+        return file
+    except FileNotFoundError:
+        print("File not found.")
+        return None
+
+# Function to write employee information to the text file
+def write_employee_info(employee_data):
+    with open("Hour.txt", "w") as file:
+        for data in employee_data:
+            from_date, to_date, name, total_hours, hourly_rate, tax_rate = data
+            gross_pay, income_tax, net_pay = calculate_pay(total_hours, hourly_rate, tax_rate)
+            record = f"{from_date}|{to_date}|{name}|{total_hours}|{hourly_rate}|{tax_rate}|{gross_pay}|{income_tax}|{net_pay}\n"
+            file.write(record)
+            if from_date == "all":
+                file.pop(record)
+                return None
+    
+def main(): 
     employee_data = []
     
     while True:
@@ -201,7 +207,10 @@ def main():
         if data is None:
             break
         employee_data.append(data)
+        
 
+    write_employee_info(employee_data)
+    
     processed_data = [process_employee_data(data) for data in employee_data]
     total_gross_pay, total_tax, total_net_pay = calculate_pay_total_pay(processed_data)
     display_totals(len(employee_data), sum(data[3] for data in employee_data), total_gross_pay, total_tax, total_net_pay)
