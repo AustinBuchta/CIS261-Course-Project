@@ -6,7 +6,7 @@ def get_employee_name():
         try:
             employee_name = input("Enter employee name: ")
         except ValueError:
-            print("I don't understand")
+            print("I don't understand what you did but try another name ")
             continue
         if not employee_name:
             print("Answer cannot be blank!")
@@ -32,7 +32,7 @@ def get_total_hours():
                 print("Please enter number of total hours worked: ")
                 continue
         except ValueError:
-            print("Please enter number of total hours worked: ")
+            print("Unexpected error! Please enter number of total hours worked: ")
             continue
     return hours
 
@@ -47,7 +47,7 @@ def get_hourly_rate():
                 print("Please enter number of hourly rate: ")
                 continue
         except ValueError:
-            print("Please enter number of hourly rate: ")
+            print("Unexpected error! Please enter number of hourly rate: ")
             continue
     return rate
 
@@ -72,21 +72,12 @@ def calculate_pay(total_hours, hourly_rate, tax_rate):
     net_pay = gross_pay - income_tax
     return gross_pay, income_tax, net_pay
 
-def display_employee_details(name, total_hours, hourly_rate, gross_pay, tax_rate, income_tax, net_pay):
-    print("\nEmployee Name:", name)
-    print("Total Hours Worked:", total_hours)
-    print("Hourly Rate:", hourly_rate)
-    print("Gross Pay:", gross_pay)
-    print("Income Tax Rate:", tax_rate, "%")
-    print("Income Tax:", income_tax)
-    print("Net Pay:", net_pay)
-
 def display_totals(total_employees, total_hours, total_gross_pay, total_tax, total_net_pay):
     print("\nTotal Number of Employees:", total_employees)
     print("Total Hours Worked:", total_hours)
-    print("Total Gross Pay:", total_gross_pay)
-    print("Total Tax:", total_tax)
-    print("Total Net Pay:", total_net_pay)
+    print("Total Gross Pay: $", total_gross_pay)
+    print("Total Tax: $", total_tax)
+    print("Total Net Pay: $", total_net_pay)
 
 def get_date():
     while True:
@@ -95,7 +86,7 @@ def get_date():
             if get_from_date.lower() == "all":
                 from_date = get_from_date
                 to_date = get_from_date  # Assign the same value to 'to_date'
-                return from_date, to_date  # Return both from_date and to_date
+                return from_date, to_date  # Return both from_date and to_date to avoid errors
             if get_from_date:
                 get_from = re.sub(r'\D', '', get_from_date)    
                 if len(get_from) == 8:
@@ -104,7 +95,7 @@ def get_date():
                 if len(get_from) == 6:
                     from_date = get_from[:2] + '/' + get_from[2:4] + '/20' + get_from[4:]
                     break
-                if len(get_from) == 7 or len(get_from) <= 5:
+                if len(get_from) == 7 or len(get_from) <= 5 or len(get_from) >= 9:
                     print("Invalid date format. Please enter the date in mm/dd/yyyy format.")
                     continue
                 else: 
@@ -123,7 +114,7 @@ def get_date():
                 if len(get_to) == 6:
                     to_date = get_to[:2] + '/' + get_to[2:4] + '/20' + get_to[4:]
                     break
-                if len(get_to) == 7 or len(get_to) <= 5:
+                if len(get_to) == 7 or len(get_to) <= 5 or len(get_to) >= 9:
                     print("Invalid date format. Please enter the date in mm/dd/yyyy format.")
                     continue
                 else: 
@@ -145,48 +136,6 @@ def enter_employee_data():
     tax_rate = get_income_tax_rate()
     return [from_date, to_date, name, employee_hours, hourly_rate, tax_rate]
 
-def calculate_pay_total_pay(employee_data):
-    total_gross_pay = sum(data[0] for data in employee_data)
-    total_tax = sum(data[1] for data in employee_data)
-    total_net_pay = sum(data[2] for data in employee_data)
-    return total_gross_pay, total_tax, total_net_pay
-
-def process_employee_data(data):
-#Index:0     ,   1    ,  2  ,     3       ,     4      ,     5
-    from_date, to_date, name,  total_hours, hourly_rate, tax_rate = data
-    gross_pay, income_tax, net_pay = calculate_pay(total_hours, hourly_rate, tax_rate)
-    print("\nEmployee Name:", name)
-    print("From Date:", from_date)
-    print("To Date:", to_date)
-    print("Total Hours Worked:", total_hours)
-    print("Hourly Rate:", hourly_rate)
-    print("Gross Pay:", gross_pay)
-    print("Income Tax Rate:", tax_rate, "%")
-    print("Income Tax:", income_tax)
-    print("Net Pay:", net_pay)
-    return gross_pay, income_tax, net_pay
-
-def display_totals_from_dict(employee_data):
-    total_employees = len(employee_data)
-    total_all_hours = sum(data[3] for data in employee_data)
-    total_gross_pay = sum(data[0] for data in employee_data)
-    total_tax = sum(data[1] for data in employee_data)
-    total_net_pay = sum(data[2] for data in employee_data)
-    print("\nTotal Number of Employees:", total_employees)
-    print("Total Hours Worked:", total_all_hours)
-    print("Total Gross Pay:", total_gross_pay)
-    print("Total Tax:", total_tax)
-    print("Total Net Pay:", total_net_pay)
-
-def open_file():
-    try:
-        file = open("Hour.txt", "a")  # Open the file in "append" mode
-        return file
-    except FileNotFoundError:
-        print("File not found.")
-        return None
-
-# Function to write employee information to the text file
 def write_employee_info(employee_data):
     with open("Hour.txt", "w") as file:
         for data in employee_data:
@@ -194,12 +143,25 @@ def write_employee_info(employee_data):
             gross_pay, income_tax, net_pay = calculate_pay(total_hours, hourly_rate, tax_rate)
             record = f"{from_date}|{to_date}|{name}|{total_hours}|{hourly_rate}|{tax_rate}|{gross_pay}|{income_tax}|{net_pay}\n"
             file.write(record)
-            if from_date == "all":
-                file.pop(record)
-                return None
-    
+            
+            # Display employee details
+            print("\nEmployee Name: ",name)
+            print("From Date: ",from_date)
+            print("To Date: ",to_date)
+            print("Total Hours Worked:",total_hours)
+            print("Hourly Rate: $",hourly_rate)
+            print("Gross Pay: $",gross_pay)
+            print("Income Tax Rate:",tax_rate,"%")
+            print("Income Tax: $",income_tax)
+            print("Net Pay: $",net_pay)
+            # Return the calculated pay details
+            yield gross_pay, income_tax, net_pay
+              
 def main(): 
     employee_data = []
+    gross_pay_total = 0
+    income_tax_total = 0
+    net_pay_total = 0
     
     while True:
         print()
@@ -207,14 +169,16 @@ def main():
         if data is None:
             break
         employee_data.append(data)
-        
 
-    write_employee_info(employee_data)
+    # Write employee information to the file and calculate totals
+    with open("Hour.txt", "r") as file:
+        for gross_pay, income_tax, net_pay in write_employee_info(employee_data):
+            gross_pay_total += gross_pay
+            income_tax_total += income_tax
+            net_pay_total += net_pay
     
-    processed_data = [process_employee_data(data) for data in employee_data]
-    total_gross_pay, total_tax, total_net_pay = calculate_pay_total_pay(processed_data)
-    display_totals(len(employee_data), sum(data[3] for data in employee_data), total_gross_pay, total_tax, total_net_pay)
+    # Display totals
+    display_totals(len(employee_data), sum(data[3] for data in employee_data), gross_pay_total, income_tax_total, net_pay_total)
 
 if __name__ == "__main__":
     main()
-    
