@@ -1,70 +1,66 @@
 import re
 
 def get_employee_name():
-    # verification name is entered
     while True:
         try:
             employee_name = input("Enter employee name: ")
         except ValueError:
-            print("I don't understand what you did but try another name ")
+            print("Please enter a valid name.")
             continue
         if not employee_name:
-            print("Answer cannot be blank!")
+            print("Name cannot be blank!")
             continue
         elif employee_name.isdigit():
-            print("That is a number. Please enter a name without numbers.")
+            print("Name cannot contain numbers.")
             continue
         elif re.search(r'[-+=!@#$%^&*(),.?":{}|<>]', employee_name):
-            print("Special characters are not allowed. Please enter text only.")
+            print("Name cannot contain special characters.")
             continue
-        else: 
+        else:
             break
     return employee_name
-    
+
 def get_total_hours():
-    # Same code verification as get_hourly_rat
     while True:
         try:
-            hours = int(input("Enter total hours worked: "))
-            if isinstance(hours, int):
-                break
-            else:
-                print("Please enter number of total hours worked: ")
+            hours = float(input("Enter total hours worked: "))
+            if hours < 0:
+                print("Hours cannot be negative.")
                 continue
+            else:
+                break
         except ValueError:
-            print("Unexpected error! Please enter number of total hours worked: ")
+            print("Please enter a valid number of hours.")
             continue
     return hours
 
 def get_hourly_rate():
-    # Same code verification as get_total_hours
     while True:
         try:
-            rate = int(input("Enter hourly rate: "))
-            if isinstance(rate, int):
-                break
-            else:
-                print("Please enter number of hourly rate: ")
+            rate = float(input("Enter hourly rate: "))
+            if rate < 0:
+                print("Rate cannot be negative.")
                 continue
+            else:
+                break
         except ValueError:
-            print("Unexpected error! Please enter number of hourly rate: ")
+            print("Please enter a valid hourly rate.")
             continue
     return rate
 
 def get_income_tax_rate():
-    # Same code verification as get_total_hours and get_hourly_rat 
     while True:
         try:
-            create_tax_rate = int(input("Enter income tax rate: "))
-            if isinstance(create_tax_rate, int):
-                break
-            else:
-                print("Please enter number of income tax rate: ")
+            tax_rate = float(input("Enter income tax rate: "))
+            if tax_rate < 0:
+                print("Tax rate cannot be negative.")
                 continue
+            else:
+                break
         except ValueError:
-            print("Unexpected error! Please enter number of income tax rate: ")
+            print("Please enter a valid tax rate.")
             continue
-    return create_tax_rate
+    return tax_rate
 
 def calculate_pay(total_hours, hourly_rate, tax_rate):
     gross_pay = total_hours * hourly_rate
@@ -82,43 +78,40 @@ def display_totals(total_employees, total_hours, total_gross_pay, total_tax, tot
 def get_date():
     while True:
         try:
-            get_from_date = input("Enter from date (mm/dd/yyyy): ")
-            if get_from_date.lower() == "all":
-                from_date = get_from_date
-                to_date = get_from_date  # Assign the same value to 'to_date'
-                return from_date, to_date  # Return both from_date and to_date to avoid errors
-            if get_from_date:
-                get_from = re.sub(r'\D', '', get_from_date)    
-                if len(get_from) == 8:
-                    from_date = get_from[:2] + '/' + get_from[2:4] + '/' + get_from[4:]
-                    break
-                if len(get_from) == 6:
-                    from_date = get_from[:2] + '/' + get_from[2:4] + '/20' + get_from[4:]
-                    break
-                if len(get_from) == 7 or len(get_from) <= 5 or len(get_from) >= 9:
+            from_date = input("Enter from date (mm/dd/yyyy): ")
+            if from_date.lower() == "all":
+                return "all", "all"
+            if from_date:
+                from_date = re.sub(r'\D', '', from_date)    
+                if len(from_date) == 8:
+                    from_date = from_date[:2] + '/' + from_date[2:4] + '/' + from_date[4:]
+                elif len(from_date) == 6:
+                    from_date = from_date[:2] + '/' + from_date[2:4] + '/20' + from_date[4:]
+                elif len(from_date) == 7 or len(from_date) <= 5 or len(from_date) >= 9:
                     print("Invalid date format. Please enter the date in mm/dd/yyyy format.")
                     continue
                 else: 
                     raise ValueError
+                break
         except ValueError:
             print("Unexpected error. Please enter the date in mm/dd/yyyy format.")
             continue
+
     while True:
         try:
-            get_to_date = input("Enter to date (mm/dd/yyyy): ")
-            if get_to_date:
-                get_to = re.sub(r'\D', '', get_to_date)    
-                if len(get_to) == 8:
-                    to_date = get_to[:2] + '/' + get_to[2:4] + '/' + get_to[4:]
-                    break
-                if len(get_to) == 6:
-                    to_date = get_to[:2] + '/' + get_to[2:4] + '/20' + get_to[4:]
-                    break
-                if len(get_to) == 7 or len(get_to) <= 5 or len(get_to) >= 9:
+            to_date = input("Enter to date (mm/dd/yyyy): ")
+            if to_date:
+                to_date = re.sub(r'\D', '', to_date)    
+                if len(to_date) == 8:
+                    to_date = to_date[:2] + '/' + to_date[2:4] + '/' + to_date[4:]
+                elif len(to_date) == 6:
+                    to_date = to_date[:2] + '/' + to_date[2:4] + '/20' + to_date[4:]
+                elif len(to_date) == 7 or len(to_date) <= 5 or len(to_date) >= 9:
                     print("Invalid date format. Please enter the date in mm/dd/yyyy format.")
                     continue
                 else: 
                     raise ValueError
+                break
         except ValueError:
             print("Unexpected error. Please enter the date in mm/dd/yyyy format.")
             continue
@@ -131,38 +124,50 @@ def enter_employee_data():
     from_date, to_date = get_date()
     if from_date == "all":
         return
-    employee_hours = get_total_hours()
+    total_hours = get_total_hours()
     hourly_rate = get_hourly_rate()
     tax_rate = get_income_tax_rate()
-    return [from_date, to_date, name, employee_hours, hourly_rate, tax_rate]
+    gross_pay, income_tax, net_pay = calculate_pay(total_hours, hourly_rate, tax_rate)
+    return [from_date, to_date, name, total_hours, hourly_rate, tax_rate] 
 
 def write_employee_info(employee_data):
-    with open("Hour.txt", "w") as file:
-        for data in employee_data:
-            from_date, to_date, name, total_hours, hourly_rate, tax_rate = data
-            gross_pay, income_tax, net_pay = calculate_pay(total_hours, hourly_rate, tax_rate)
-            record = f"{from_date}|{to_date}|{name}|{total_hours}|{hourly_rate}|{tax_rate}|{gross_pay}|{income_tax}|{net_pay}\n"
-            file.write(record)
-            
-            # Display employee details
-            print("\nEmployee Name: ",name)
-            print("From Date: ",from_date)
-            print("To Date: ",to_date)
-            print("Total Hours Worked:",total_hours)
-            print("Hourly Rate: $",hourly_rate)
-            print("Gross Pay: $",gross_pay)
-            print("Income Tax Rate:",tax_rate,"%")
-            print("Income Tax: $",income_tax)
-            print("Net Pay: $",net_pay)
-            # Return the calculated pay details
-            yield gross_pay, income_tax, net_pay
-              
-def main(): 
-    employee_data = []
+    employee_data_list = []  # Initialize list to store employee data
+
     gross_pay_total = 0
     income_tax_total = 0
     net_pay_total = 0
     
+    with open("Hour.txt", "w") as file:
+        for data in employee_data:
+            from_date, to_date, name, total_hours, hourly_rate, tax_rate = data
+            gross_pay, income_tax, net_pay = calculate_pay(total_hours, hourly_rate, tax_rate)
+            record = f"{from_date}{to_date}{name}{total_hours}{hourly_rate}{tax_rate}{gross_pay}{income_tax}{net_pay}\n"
+            file.write(record)
+            
+            # Add employee details to the list
+            employee_data_list.append((name, from_date, to_date, total_hours, hourly_rate, gross_pay, tax_rate, income_tax, net_pay))
+
+            # Increment totals
+            gross_pay_total += gross_pay
+            income_tax_total += income_tax
+            net_pay_total += net_pay
+            
+            # Display employee details
+            print("\nEmployee Name: ", name)
+            print("From Date: ", from_date)
+            print("To Date: ", to_date)
+            print("Total Hours Worked:", total_hours)
+            print("Hourly Rate: $", hourly_rate)
+            print("Gross Pay: $", gross_pay)
+            print("Income Tax Rate:", tax_rate, "%")
+            print("Income Tax: $", income_tax)
+            print("Net Pay: $", net_pay)
+    
+    return employee_data_list, gross_pay_total, income_tax_total, net_pay_total
+
+def main(): 
+    employee_data = []
+
     while True:
         print()
         data = enter_employee_data()
@@ -171,14 +176,9 @@ def main():
         employee_data.append(data)
 
     # Write employee information to the file and calculate totals
-    with open("Hour.txt", "r") as file:
-        for gross_pay, income_tax, net_pay in write_employee_info(employee_data):
-            gross_pay_total += gross_pay
-            income_tax_total += income_tax
-            net_pay_total += net_pay
+    employee_data_list, gross_pay_total, income_tax_total, net_pay_total = write_employee_info(employee_data)
     
-    # Display totals
-    display_totals(len(employee_data), sum(data[3] for data in employee_data), gross_pay_total, income_tax_total, net_pay_total)
+    display_totals(len(employee_data_list), sum(record[3] for record in employee_data_list), gross_pay_total, income_tax_total, net_pay_total)
 
 if __name__ == "__main__":
     main()
