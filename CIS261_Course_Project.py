@@ -1,26 +1,28 @@
 import re
 
 def get_employee_name():
+    # verification name is entered
     while True:
         try:
             employee_name = input("Enter employee name: ")
+            if not employee_name:
+                print("Name cannot be blank!")
+                continue
+            elif employee_name.isdigit():
+                print("Name cannot contain numbers.")
+                continue
+            elif re.search(r'[-+=!@#$%^&*(),.?":{}|<>]', employee_name):
+                print("Name cannot contain special characters.")
+                continue
+            else:
+                break
         except ValueError:
             print("Please enter a valid name.")
             continue
-        if not employee_name:
-            print("Name cannot be blank!")
-            continue
-        elif employee_name.isdigit():
-            print("Name cannot contain numbers.")
-            continue
-        elif re.search(r'[-+=!@#$%^&*(),.?":{}|<>]', employee_name):
-            print("Name cannot contain special characters.")
-            continue
-        else:
-            break
     return employee_name
 
 def get_total_hours():
+    # Same code verification as get_hourly_rat
     while True:
         try:
             hours = float(input("Enter total hours worked: "))
@@ -35,6 +37,7 @@ def get_total_hours():
     return hours
 
 def get_hourly_rate():
+    # Same code verification as get_total_hours
     while True:
         try:
             rate = float(input("Enter hourly rate: "))
@@ -49,6 +52,7 @@ def get_hourly_rate():
     return rate
 
 def get_income_tax_rate():
+    # Same code verification as get_total_hours and get_hourly_rat 
     while True:
         try:
             tax_rate = float(input("Enter income tax rate: "))
@@ -62,25 +66,18 @@ def get_income_tax_rate():
             continue
     return tax_rate
 
-def calculate_pay(total_hours, hourly_rate, tax_rate):
+def calculate_pay(total_hours, hourly_rate, tax_rate):#Automated calculator
     gross_pay = total_hours * hourly_rate
     income_tax = (gross_pay * tax_rate) / 100
     net_pay = gross_pay - income_tax
     return gross_pay, income_tax, net_pay
 
-def display_totals(total_employees, total_hours, total_gross_pay, total_tax, total_net_pay):
-    print("\nTotal Number of Employees:", total_employees)
-    print("Total Hours Worked:", total_hours)
-    print("Total Gross Pay: $", total_gross_pay)
-    print("Total Tax: $", total_tax)
-    print("Total Net Pay: $", total_net_pay)
-
-def get_date():
+def get_date():#I still wonder if there is a better!
     while True:
         try:
             from_date = input("Enter from date (mm/dd/yyyy): ")
             if from_date.lower() == "all":
-                return "all", "all"
+                return "all", "all" #To write something twice by mistake i think its entering "all" for to_date
             if from_date:
                 from_date = re.sub(r'\D', '', from_date)    
                 if len(from_date) == 8:
@@ -99,7 +96,7 @@ def get_date():
 
     while True:
         try:
-            to_date = input("Enter to date (mm/dd/yyyy): ")
+            to_date = input("Enter to date (mm/dd/yyyy): ")#copyed from from_date
             if to_date:
                 to_date = re.sub(r'\D', '', to_date)    
                 if len(to_date) == 8:
@@ -117,75 +114,69 @@ def get_date():
             continue
     return from_date, to_date
 
-def enter_employee_data():
+def enter_employee_data():#I spent hours thinking of how to integrate this and the answer was return f!
     name = get_employee_name()
     if name.lower() == "end":
         return None
     from_date, to_date = get_date()
     if from_date == "all":
-        return
+        return None
     total_hours = get_total_hours()
     hourly_rate = get_hourly_rate()
     tax_rate = get_income_tax_rate()
     gross_pay, income_tax, net_pay = calculate_pay(total_hours, hourly_rate, tax_rate)
-    return [from_date, to_date, name, total_hours, hourly_rate, tax_rate] 
+    return f"{from_date}|{to_date}|{name}|{total_hours}|{hourly_rate}|{tax_rate}|{gross_pay}|{income_tax}|{net_pay}\n"
 
-def write_employee_info(employee_data):
-    employee_data_list = []  # Initialize list to store employee data
-
-    gross_pay_total = 0
-    income_tax_total = 0
-    net_pay_total = 0
-    
+def write_employee_info(): #Fully integrate enter employee data and write employee info
     with open("Hour.txt", "w") as file: 
-        for data in employee_data:
-            
-            from_date, to_date, name, total_hours, hourly_rate, tax_rate = data
-            if from_date == "all" or name == "end":
-                continue  # Skip this record
-            gross_pay, income_tax, net_pay = calculate_pay(total_hours, hourly_rate, tax_rate)
-            employee_data_list.append((name, from_date, to_date, total_hours, hourly_rate, gross_pay, tax_rate, income_tax, net_pay))
-            record = f"{from_date}{to_date}{name}{total_hours}{hourly_rate}{tax_rate}{gross_pay}{income_tax}{net_pay}\n"
+        while True:
+            record = enter_employee_data()
+            if record == None:
+                return None
             file.write(record)
-            
-            # Add employee details to the list
-            gross_pay_total += gross_pay
-            income_tax_total += income_tax
-            net_pay_total += net_pay
-            
-            # Display employee details
-            print("\nEmployee Name: ", name)
-            print("From Date: ", from_date)
-            print("To Date: ", to_date)
-            print("Total Hours Worked:", total_hours)
-            print("Hourly Rate: $", hourly_rate)
-            print("Gross Pay: $", gross_pay)
-            print("Income Tax Rate:", tax_rate, "%")
-            print("Income Tax: $", income_tax)
-            print("Net Pay: $", net_pay)
-    
-    return employee_data_list, gross_pay_total, income_tax_total, net_pay_total
 
+def display_report(): #Pull directly from the file
+    with open("Hour.txt", "r") as file:
+        for line in file:
+            record = line.strip().split('|')
+            print("\nFrom Date:", record[0])
+            print("To Date:", record[1])
+            print("Employee Name:", record[2])
+            print("Total Hours Worked:", record[3])
+            print("Hourly Rate: $", record[4])
+            print("Gross Pay: $", record[6])
+            print("Income Tax Rate:", record[5], "%")
+            print("Income Tax: $", record[7])
+            print("Net Pay: $", record[8])
+            
+     
+def display_report_total(): #Separated display report into display report total for sanity
+    total_employees = 0
+    total_hours = 0
+    total_gross_pay = 0
+    total_tax = 0
+    total_net_pay = 0 
+    with open("Hour.txt", "r") as file:
+        for line in file:
+            record = line.strip().split('|')
+            total_employees += 1
+            total_hours += float(record[3])
+            total_gross_pay += float(record[6])
+            total_tax += float(record[7])
+            total_net_pay += float(record[8])
+        print("\nTotal Number of Employees:", total_employees)
+        print("Total Hours Worked:", total_hours)
+        print("Total Gross Pay: $", total_gross_pay)
+        print("Total Tax: $", total_tax)
+        print("Total Net Pay: $", total_net_pay)  
+            
 def main(): 
-    employee_data = []
-
     while True:
-        print()
-        record = enter_employee_data()
-        if record is None:
+        write_employee_info()
+        result = display_report()
+        if result == None:
             break
-        employee_data.append(record)
-
-    # Write employee information to the file and calculate totals
-    employee_list, gross_pay_total, income_tax_total, net_pay_total = write_employee_info(employee_data)
+    display_report_total() #always displays total even when 0
     
-    display_totals(
-        len(employee_list),
-        sum(record[3] for record in employee_list),  # Total hours worked
-        gross_pay_total,
-        income_tax_total,
-        net_pay_total
-    )
-
 if __name__ == "__main__":
-    main() 
+    main()
