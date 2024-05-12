@@ -137,17 +137,18 @@ def write_employee_info(employee_data):
     income_tax_total = 0
     net_pay_total = 0
     
-    with open("Hour.txt", "w") as file:
+    with open("Hour.txt", "w") as file: 
         for data in employee_data:
+            
             from_date, to_date, name, total_hours, hourly_rate, tax_rate = data
+            if from_date == "all" or name == "end":
+                continue  # Skip this record
             gross_pay, income_tax, net_pay = calculate_pay(total_hours, hourly_rate, tax_rate)
+            employee_data_list.append((name, from_date, to_date, total_hours, hourly_rate, gross_pay, tax_rate, income_tax, net_pay))
             record = f"{from_date}{to_date}{name}{total_hours}{hourly_rate}{tax_rate}{gross_pay}{income_tax}{net_pay}\n"
             file.write(record)
             
             # Add employee details to the list
-            employee_data_list.append((name, from_date, to_date, total_hours, hourly_rate, gross_pay, tax_rate, income_tax, net_pay))
-
-            # Increment totals
             gross_pay_total += gross_pay
             income_tax_total += income_tax
             net_pay_total += net_pay
@@ -170,15 +171,21 @@ def main():
 
     while True:
         print()
-        data = enter_employee_data()
-        if data is None:
+        record = enter_employee_data()
+        if record is None:
             break
-        employee_data.append(data)
+        employee_data.append(record)
 
     # Write employee information to the file and calculate totals
-    employee_data_list, gross_pay_total, income_tax_total, net_pay_total = write_employee_info(employee_data)
+    employee_list, gross_pay_total, income_tax_total, net_pay_total = write_employee_info(employee_data)
     
-    display_totals(len(employee_data_list), sum(record[3] for record in employee_data_list), gross_pay_total, income_tax_total, net_pay_total)
+    display_totals(
+        len(employee_list),
+        sum(record[3] for record in employee_list),  # Total hours worked
+        gross_pay_total,
+        income_tax_total,
+        net_pay_total
+    )
 
 if __name__ == "__main__":
-    main()
+    main() 
