@@ -115,6 +115,7 @@ def get_date():#I still wonder if there is a better!
     return from_date, to_date
 
 def enter_employee_data():#I spent hours thinking of how to integrate this and the answer was return f!
+    print()
     name = get_employee_name()
     if name.lower() == "end":
         return None
