@@ -1,5 +1,69 @@
 import re
 
+def CreateUsers():
+    print("Create users, passwords, and role")
+    UserFile = open("Users.txt", "a+")
+    while True:
+        username = GetUserName()
+        if username.upper() == "END":
+            break
+        userpwd = GetUserPassword()
+        userrole = GetUserRole()
+        UserDetail = username + "|" + userpwd + "|" + userrole + "\n"
+        UserFile.write(UserDetail)
+        UserFile.close()
+    printuserinfo()
+
+def GetUserName():
+    username = input("Enter user name: ")
+    return username
+
+def GetUserPassword():
+    pwd = input("Enter password: ")
+    return pwd
+
+def GetUserRole():
+    userrole = input("Enter role (Admin or User): ")
+    while True:
+        if userrole.upper() in ["ADMIN", "USER"]:
+            return userrole
+        else:
+            userrole = input("Enter role (Admin or User): ")
+
+def printuserinfo():
+    UserFile = open("Users.txt", "r")
+    while True:
+        UserDetail = UserFile.readline()
+        if not UserDetail:
+            break
+        UserDetail = UserDetail.replace("\n", "")
+        UserList = UserDetail.split("|")
+        username = UserList[0]
+        userpassword = UserList[1]
+        userrole = UserList[2]
+        print("User Name:", username, "Password:", userpassword, "Role:", userrole)
+    UserFile.close()
+
+def Login():
+    while True:
+        UserName = input("Enter User Name: ")
+        UserPwd = input("Enter Password: ")
+        UserRole = "None"
+        with open("Users.txt", "r") as UserFile:
+            found = False
+            for UserDetail in UserFile:
+                UserDetail = UserDetail.strip()
+                UserList = UserDetail.split("|")
+                if UserName == UserList[0] and UserPwd == UserList[1]:
+                    UserRole = UserList[2]
+                    found = True
+                    break
+        if found:
+            return UserRole, UserName
+        else:
+            print("\nInvalid credentials!\n")
+            continue
+
 def get_employee_name():
     # verification name is entered
     while True:
@@ -126,10 +190,11 @@ def enter_employee_data():#I spent hours thinking of how to integrate this and t
     hourly_rate = get_hourly_rate()
     tax_rate = get_income_tax_rate()
     gross_pay, income_tax, net_pay = calculate_pay(total_hours, hourly_rate, tax_rate)
-    return f"{from_date}|{to_date}|{name}|{total_hours}|{hourly_rate}|{tax_rate}|{gross_pay}|{income_tax}|{net_pay}\n"
+    return f"{from_date}|{to_date}|{name}|{total_hours:.2f}|{hourly_rate:.2f}|{tax_rate:.0f}|{gross_pay:.2f}|{income_tax:.2f}|{net_pay:.2f}\n"
 
 def write_employee_info(): #Fully integrate enter employee data and write employee info
     with open("Hour.txt", "w") as file: 
+        print("\nData Entry")
         while True:
             record = enter_employee_data()
             if record == None:
@@ -140,15 +205,15 @@ def display_report(): #Pull directly from the file
     with open("Hour.txt", "r") as file:
         for line in file:
             record = line.strip().split('|')
-            print("\nFrom Date:", record[0])
-            print("To Date:", record[1])
-            print("Employee Name:", record[2])
-            print("Total Hours Worked:", record[3])
-            print("Hourly Rate: $", record[4])
-            print("Gross Pay: $", record[6])
-            print("Income Tax Rate:", record[5], "%")
-            print("Income Tax: $", record[7])
-            print("Net Pay: $", record[8])
+            print("\nFrom Date:",record[0])
+            print("To Date:",record[1])
+            print("Employee Name:",record[2])
+            print("Total Hours Worked:",record[3])
+            print("Hourly Rate: $",record[4])
+            print("Gross Pay: $",record[6])
+            print("Income Tax Rate:",record[5],"%")
+            print("Income Tax: $",record[7])
+            print("Net Pay: $",record[8])
             
      
 def display_report_total(): #Separated display report into display report total for sanity
@@ -165,14 +230,16 @@ def display_report_total(): #Separated display report into display report total 
             total_gross_pay += float(record[6])
             total_tax += float(record[7])
             total_net_pay += float(record[8])
-        print("\nTotal Number of Employees:", total_employees)
-        print("Total Hours Worked:", total_hours)
-        print("Total Gross Pay: $", total_gross_pay)
-        print("Total Tax: $", total_tax)
-        print("Total Net Pay: $", total_net_pay)  
+            print(f"\nTotal Number of Employees:{total_employees:,.0f}")
+            print(f"Total Hours Worked:{total_hours:,.2f}")
+            print(f"Total Gross Pay: ${total_gross_pay:,.2f}")
+            print(f"Total Tax: ${total_tax:,.2f}")
+            print(f"Total Net Pay: ${total_net_pay:,.2f}")    
             
 def main(): 
     while True:
+        CreateUsers()
+        Login()
         write_employee_info()
         result = display_report()
         if result == None:
