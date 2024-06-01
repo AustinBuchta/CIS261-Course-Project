@@ -2,70 +2,83 @@ import re
 
 def CreateUsers():
     print("Create users, passwords, and role")
-    UserFile = open("Users.txt", "a+")
-    while True:
-        username = GetUserName()
-        if username.upper() == "END":
-            break
-        userpwd = GetUserPassword()
-        userrole = GetUserRole()
-        UserDetail = username + "|" + userpwd + "|" + userrole + "\n"
-        UserFile.write(UserDetail)
-        UserFile.close()
-    printuserinfo()
+    with open("Users.txt", "a+") as UsersFile:
+        while True:
+            username = GetUserName().lower()
+            if username == "end":
+                break
+            password = GetUserPassword()
+            getrole = GetUserRole()
+            UserDetail = username + "|" + password + "|" + getrole + "\n"
+            UsersFile.write(UserDetail)
+    UserInfo()
 
-def GetUserName():
-    username = input("Enter user name: ")
-    return username
+def GetUserName():# get_employee_name reused
+    while True:
+        try:
+            username = input("Enter user name: ")
+            if not username:
+                print("Name cannot be blank!")
+                continue
+            elif username.isdigit():
+                print("Name cannot contain numbers.")
+                continue
+            elif re.search(r'[-+=!@#$%^&*(),.?":{}|<>]', username):
+                print("Name cannot contain special characters.")
+                continue
+            else:
+                break
+        except ValueError:
+            print("Please enter a valid name.")
+            continue
+    return username       
 
 def GetUserPassword():
-    pwd = input("Enter password: ")
-    return pwd
+    while True:
+        try:
+            upass = input("Enter password: ")
+            if not upass:
+                print("Password cannot be blank!")
+                continue
+            else:
+                break
+        except ValueError:
+            print("Please enter a valid password.")
+            continue
+    return upass
 
 def GetUserRole():
-    userrole = input("Enter role (Admin or User): ")
+    getrole = input("Enter role (Admin or User): ").lower()
     while True:
-        if userrole.upper() in ["ADMIN", "USER"]:
-            return userrole
+        if getrole in ["admin", "user"]:
+            return getrole
         else:
-            userrole = input("Enter role (Admin or User): ")
+            getrole = input("Invalid must enter (Admin or User): ")
 
-def printuserinfo():
-    UserFile = open("Users.txt", "r")
-    while True:
-        UserDetail = UserFile.readline()
-        if not UserDetail:
-            break
-        UserDetail = UserDetail.replace("\n", "")
-        UserList = UserDetail.split("|")
-        username = UserList[0]
-        userpassword = UserList[1]
-        userrole = UserList[2]
-        print("User Name:", username, "Password:", userpassword, "Role:", userrole)
-    UserFile.close()
+def UserInfo():
+    with open("Users.txt", "r") as UsersFile:
+        while True:
+            UserDetail = UsersFile.readline()
+            if not UserDetail:
+                break
+            UserDetail = UserDetail.replace("\n", "")
+            UserData = UserDetail.split("|")
+            print("User Name:", UserData[0], "Password:", UserData[1], "Role:", UserData[2])
 
 def Login():
     while True:
-        UserName = input("Enter User Name: ")
-        UserPwd = input("Enter Password: ")
-        UserRole = "None"
-        with open("Users.txt", "r") as UserFile:
-            found = False
-            for UserDetail in UserFile:
+        UserName = input("Enter User Name: ").lower()
+        Userupass = input("Enter Password: ")
+        with open("Users.txt", "r") as UsersFile:
+            for UserDetail in UsersFile:
                 UserDetail = UserDetail.strip()
-                UserList = UserDetail.split("|")
-                if UserName == UserList[0] and UserPwd == UserList[1]:
-                    UserRole = UserList[2]
-                    found = True
-                    break
-        if found:
-            return UserRole, UserName
-        else:
-            print("\nInvalid credentials!\n")
-            continue
+                UserData = UserDetail.split("|")
+                if UserName == UserData[0] and Userupass == UserData[1]:
+                    return UserData[2]
+        print(f"\n{UserName}, Invalid credentials!\n")
+        return"none"
 
-def get_employee_name():
-    # verification name is entered
+def get_employee_name(): # verification name is entered
     while True:
         try:
             employee_name = input("Enter employee name: ")
@@ -85,8 +98,7 @@ def get_employee_name():
             continue
     return employee_name
 
-def get_total_hours():
-    # Same code verification as get_hourly_rat
+def get_total_hours(): # Same code verification as get_hourly_rat
     while True:
         try:
             hours = float(input("Enter total hours worked: "))
@@ -100,8 +112,7 @@ def get_total_hours():
             continue
     return hours
 
-def get_hourly_rate():
-    # Same code verification as get_total_hours
+def get_hourly_rate(): # Same code verification as get_total_hours
     while True:
         try:
             rate = float(input("Enter hourly rate: "))
@@ -115,8 +126,7 @@ def get_hourly_rate():
             continue
     return rate
 
-def get_income_tax_rate():
-    # Same code verification as get_total_hours and get_hourly_rat 
+def get_income_tax_rate(): # Same code verification as get_total_hours and get_hourly_rat 
     while True:
         try:
             tax_rate = float(input("Enter income tax rate: "))
@@ -136,7 +146,7 @@ def calculate_pay(total_hours, hourly_rate, tax_rate):#Automated calculator
     net_pay = gross_pay - income_tax
     return gross_pay, income_tax, net_pay
 
-def get_date():#I still wonder if there is a better!
+def get_date():#I know there is a better way but i have commited to this now! from datetime import date
     while True:
         try:
             from_date = input("Enter from date (mm/dd/yyyy): ")
@@ -198,9 +208,9 @@ def write_employee_info(): #Fully integrate enter employee data and write employ
         while True:
             record = enter_employee_data()
             if record == None:
-                return None
+                break
             file.write(record)
-
+        
 def display_report(): #Pull directly from the file
     with open("Hour.txt", "r") as file:
         for line in file:
@@ -214,8 +224,7 @@ def display_report(): #Pull directly from the file
             print("Income Tax Rate:",record[5],"%")
             print("Income Tax: $",record[7])
             print("Net Pay: $",record[8])
-            
-     
+                
 def display_report_total(): #Separated display report into display report total for sanity
     total_employees = 0
     total_hours = 0
@@ -229,22 +238,28 @@ def display_report_total(): #Separated display report into display report total 
             total_hours += float(record[3])
             total_gross_pay += float(record[6])
             total_tax += float(record[7])
-            total_net_pay += float(record[8])
-            print(f"\nTotal Number of Employees:{total_employees:,.0f}")
-            print(f"Total Hours Worked:{total_hours:,.2f}")
-            print(f"Total Gross Pay: ${total_gross_pay:,.2f}")
-            print(f"Total Tax: ${total_tax:,.2f}")
-            print(f"Total Net Pay: ${total_net_pay:,.2f}")    
-            
-def main(): 
+            total_net_pay += float(record[8])       
+        print(f"\nTotal Number of Employees:{total_employees:,.0f}")# print must stay in this spot!
+        print(f"Total Hours Worked:{total_hours:,.2f}")
+        print(f"Total Gross Pay: ${total_gross_pay:,.2f}")
+        print(f"Total Tax: ${total_tax:,.2f}")
+        print(f"Total Net Pay: ${total_net_pay:,.2f}")    
+          
+def main():
+    CreateUsers()
+    Authorization = Login()
     while True:
-        CreateUsers()
-        Login()
-        write_employee_info()
-        result = display_report()
-        if result == None:
+        if Authorization == "none":
             break
-    display_report_total() #always displays total even when 0
-    
+        if Authorization == "user":
+            display_report()
+            break
+        if Authorization == "admin":
+            write_employee_info()
+            result = display_report()
+            if result == None:
+                display_report_total()
+                break
+            
 if __name__ == "__main__":
-    main()
+    main()      
